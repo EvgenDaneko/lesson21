@@ -1,60 +1,95 @@
 {% extends 'base.html' %}
+
 {% block content %}
 
-<main class="projects">
-    <section class="hero-section text-center">
-        <div class="container container--narrow">
-            <div class="hero-section__box">
-                <h2>Поиск по <span>проектам</span></h2>
+<main class="singleProject my-md">
+    <div class="container">
+        <div class="layout">
+            <div class="column column--1of3">
+                <h3 class="singleProject__subtitle">Платформа и стек</h3>
+                <div class="singleProject__toolStack">
+                {% for tag in project.tags.all %}
+                <a href="{% url 'tag' tag.slug %}" class="tag tag--pill tag--sub tag--lg">{{tag}}</a>
+                {% endfor %}               
+                </div>
+
+                {% if project.source_link %}
+                <a class="singleProject__liveLink" href="{{ project.source_link }}" target="_blank"><i
+                        class="im im-external-link"></i>Исходный код на GitHub
+                </a>
+                {% endif %}
+
+                {% if project.demo_link %}
+                <a class="singleProject__liveLink" href="{{ project.source_link }}" target="_blank"><i
+                        class="im im-external-link"></i>Демо-сайт
+
+                </a>
+                {% endif %}
+
             </div>
+            <div class="column column--2of3">
+                <img class="singleProject__preview" src="{{ project.image.url }}" alt="скриншот проекта" />
+                <a href="{% url 'user-profile' project.owner %}"
+                    class="singleProject__developer">{{ project.owner.name }}</a>
+                <h2 class="singleProject__title">{{ project.title }}</h2>
+                <h3 class="singleProject__subtitle">Информация о проекте</h3>
+                <div class="singleProject__info">
+                    {{ project.description }}
+                </div>
+                <div class="comments">
+                    <h3 class="singleProject__subtitle">Оценки и отзывы</h3>
+                    <h5 class="project--rating">
+                    процент положительных отзывов: {{project.votes_ratio}}%
+                    </h5>
+                    <h5 class="project--rating">
+                    всего отзывов: {{project.total_votes}}
+                    </h5>
+                    {% if request.user.profile.id in project.reviewers %}
+                    <p>Вы уже писали отзыв об этом проекте</p>
 
-            <div class="hero-section__search">
-                <form id='searchForm' class="form" action="{% url 'projects' %}" method="get">
-                    <div class="form__field">
-                        <label for="formInput#search">Поиск по проектам </label>
-                        <input class="input input--text" id="formInput#search" type="text" name="search_query"
-                            placeholder="Поиск по названию/описанию проекта" value="{{ search_query }}" />
-                    </div>
+                    {% elif request.user.profile == project.owner %}
+                    <p>Вы не можете оставлять отзывы к собственным проектам</p>
 
-                    <input class="btn btn--sub btn--lg" type="submit" value="Найти" />
-                </form>
-            </div>
-        </div>
-    </section>
-    <section class="projectsList">
-        <div class="container">
-            <div class="grid grid--three">
+                    {% elif request.user.is_authenticated %}
+                    <form class="form" action="{% url 'project' project.slug %}" method="POST">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form__field">
+                            <label for="formInput#textarea">{{ field.label }}</label>
+                            {{field}}
+                        </div>
+                        {% endfor %}
+                        <input class="btn btn--sub btn--lg" type="submit" value="Добавить отзыв" />
+                    </form>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}">Войдите, чтобы оставить отзыв</a>
+                    {% endif %}
 
-                {% for project in projects %}
-                <div class="column">
-                    <div class="card project">
-                        <a href="{% url 'project' project.slug %}" class="project">
-                            <img class="project__thumbnail" src="{{ project.image.url }}" alt="скриншот проекта" />
-                            <div class="card__body">
-                                <h3 class="project__title">{{ project.title }}</h3>
-                                <p><a class="project__author" href="{% url 'user-profile' project.owner.id%}">Разработчик:
-                                        {{ project.owner.name }}</a>
-                                </p>
-                                <p class="project--rating">
-                                    <span style="font-weight: bold;">положительных отзывов:</span>  {{ project.votes_ratio }}%
-                                </p>
-                                 <p class="project--rating">
-                                    <span style="font-weight: bold;">всего отзывов:</span> {{ project.total_votes }}
-                                </p>                               
-                                <div class="project__tags">
-                                    {% for tag in project.tags.all %}
-                                    <a href="{% url 'tag' tag.slug %}" class="tag tag--pill tag--main">{{tag}}</a>
-                                    {% endfor %}
-                                </div>
+                    <div class="commentList">
+                        {% for review in project.review_set.all %}
+                        {% if review.body %}
+                        <div class="comment">
+                            <a href="{% url 'user-profile' review.owner  %}">
+                                <img class="avatar avatar--md" src="{{ review.owner.image.url }}" alt="user" />
+                            </a>
+
+
+                            <div class="comment__details">
+                                <a href="{% url 'user-profile' review.owner  %}"
+                                    class="comment__author">{{ review.owner }}</a>
+                                <p class="comment__info">{{ review.body|linebreaksbr }}</p>
                             </div>
-                        </a>
+
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+
                     </div>
                 </div>
-                {% endfor %}
-
             </div>
         </div>
-    </section>
+    </div>
+    </div>
 </main>
 
 {% endblock %}

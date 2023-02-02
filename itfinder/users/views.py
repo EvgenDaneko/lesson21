@@ -26,7 +26,7 @@ def registerUser(request):
     return render(request, 'users/login_register.html', context)
 
 
-def loginUser(request):
+def LoginUser(request):
     page = 'login'
     if request.User.is_authenticated:
         return redirect('profiles')
@@ -51,7 +51,7 @@ def loginUser(request):
     return render(request, 'users/login_register.html')
 
 
-def logoutUser(request):
+def LogoutUser(request):
     logout(request)
     messages.info(request, 'Вы вышли из учетной записи')
     return redirect('login')

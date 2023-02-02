@@ -32,7 +32,7 @@
                             <img class="project__thumbnail" src="{{ project.image.url }}" alt="скриншот проекта" />
                             <div class="card__body">
                                 <h3 class="project__title">{{ project.title }}</h3>
-                                <p><a class="project__author" href="{% url 'user-profile' project.owner.id%}">Разработчик:
+                                <p><a class="project__author" href="{% url 'user-profile' project.owner %}">Разработчик:
                                         {{ project.owner.name }}</a>
                                 </p>
                                 <p class="project--rating">
@@ -46,6 +46,7 @@
                                     <a href="{% url 'tag' tag.slug %}" class="tag tag--pill tag--main">{{tag}}</a>
 
                                     {% endfor %}
+
                                 </div>
                             </div>
                         </a>

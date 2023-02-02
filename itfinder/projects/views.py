@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Projects, Tag
-from .forms import ProjectForm
+from .forms import ProjectForm, ReviewForm
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
@@ -13,8 +14,18 @@ def projects(request):
 
 def project(request, project_slug):
     projectObj = Projects.objects.get(slug=project_slug)
-    tags = projectObj.tags.all()
-    return render(request, 'projects/single-project.html', {'project': projectObj})
+    tags = project.tags.all()
+    form = ReviewForm()
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        review = form.save(commit=False)
+        review.project = project
+        review.owner = request.user.profile
+        review.save()
+        project.getVoteCount
+        messages.success(request, 'Ваш отзыв был оставлен')
+        return redirect('project', project_slug=project.slug)
+    return render(request, 'projects/single-project.html', {'project': project, 'form': form})
 
 @login_required(login_url="login")
 def createProject(request):
