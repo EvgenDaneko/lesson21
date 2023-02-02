@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+<
+{% block content %}
+<main class="formPage my-xl">
+    <div class="content-box">
+        <div class="formWrapper">
+            <br>
+            <form class="form" action="" method="POST">
+                {% csrf_token %}
+
+                <p>Вы действительно хотите удалить {{ object }}?</p>
+
+                <a class="btn btn--sub btn--lg" href="{{ url 'request.GET.next' }}">Отмена</a>
+
+                <input class="btn btn--sub btn--lg" type="submit" value="Подтвердить удаление" />
+            </form>
+
+        </div>
+    </div>
+</main>
+{% endblock %}
